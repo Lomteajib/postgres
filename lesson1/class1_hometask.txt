@@ -1,0 +1,44 @@
+DROP TABLE IF EXISTS departments;
+
+CREATE TABLE departments (
+    id INT GENERATED ALWAYS AS IDENTITY,
+    parent_id INT,
+    name VARCHAR(200)
+);
+
+gopher=# insert into departments(parent_id,name) values (0,'root');
+INSERT 0 1
+gopher=# insert into departments(parent_id,name) values (1,'HR');
+INSERT 0 1
+gopher=# insert into departments(parent_id,name) values (1,'Marketing');
+INSERT 0 1
+
+
+opher=# \l
+                                 List of databases
+   Name    |  Owner   | Encoding |  Collate   |   Ctype    |   Access privileges
+   
+-----------+----------+----------+------------+------------+--------------------
+---
+ gopher    | postgres | UTF8     | C.UTF-8    | C.UTF-8    | 
+ postgres  | postgres | UTF8     | en_US.utf8 | en_US.utf8 | 
+ template0 | postgres | UTF8     | en_US.utf8 | en_US.utf8 | =c/postgres        
+  +
+           |          |          |            |            | postgres=CTc/postgr
+es
+ template1 | postgres | UTF8     | en_US.utf8 | en_US.utf8 | =c/postgres        
+  +
+           |          |          |            |            | postgres=CTc/postgr
+es
+(4 rows)
+
+gopher=# \dt
+            List of relations
+ Schema |    Name     | Type  |  Owner   
+--------+-------------+-------+----------
+ public | departments | table | postgres
+(1 row)
+
+gopher=# 
+
+

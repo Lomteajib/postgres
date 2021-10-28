@@ -1,0 +1,47 @@
+gopher=# \dt+
+                              List of relations
+ Schema |    Name     | Type  |  Owner   | Persistence | Size  | Description 
+--------+-------------+-------+----------+-------------+-------+-------------
+ public | bed_types   | table | postgres | permanent   | 48 kB | 
+ public | booking     | table | postgres | permanent   | 40 kB | 
+ public | departments | table | postgres | permanent   | 40 kB | 
+ public | eat_types   | table | postgres | permanent   | 48 kB | 
+ public | guests      | table | postgres | permanent   | 48 kB | 
+ public | rooms       | table | postgres | permanent   | 40 kB | 
+(6 rows)
+
+
+/** Совместил количество строк и размер таблиц**/
+gopher=# select oid::regclass::text as tablename, pg_size_pretty(pg_table_size(oid)) as table_size,pg_size_pretty(pg_indexes_size(oid)) as indexes_size,pg_size_pretty(pg_total_relation_size(oid)) as total_size, reltuples::bigint as rows_count from pg_class where relkind='r' and oid::regclass::text in (SELECT tablename FROM pg_tables WHERE tablename NOT LIKE 'pg_%' and schemaname='public');
+  tablename  | table_size | indexes_size | total_size | rows_count 
+-------------+------------+--------------+------------+------------
+ departments | 40 kB      | 0 bytes      | 40 kB      |          3
+ bed_types   | 48 kB      | 16 kB        | 64 kB      |          4
+ rooms       | 40 kB      | 16 kB        | 56 kB      |         36
+ booking     | 40 kB      | 16 kB        | 56 kB      |          4
+ eat_types   | 48 kB      | 16 kB        | 64 kB      |          4
+ guests      | 48 kB      | 16 kB        | 64 kB      |          7
+(6 rows)
+
+
+gopher=# select pg_size_pretty(pg_database_size('gopher'));
+ pg_size_pretty 
+----------------
+ 8517 kB
+(1 row)
+
+
+opher=# select pg_size_pretty(sum(pg_database_size(datname)))
+from pg_database
+gopher-# ;
+ pg_size_pretty 
+----------------
+ 31 MB
+(1 row)
+
+
+gopher@gopher-VirtualBox:~$ du -sh $HOME/pg-for-go-devs/data
+49M	/home/gopher/pg-for-go-devs/data
+
+
+

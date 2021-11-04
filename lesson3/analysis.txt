@@ -1,0 +1,71 @@
+gopher=# explain analyze select *  from guests where lower(first_name) like 'иван%';
+                                            QUERY PLAN                          
+                  
+--------------------------------------------------------------------------------
+------------------
+ Seq Scan on guests  (cost=0.00..35.75 rows=7 width=51) (actual time=0.555..3.32
+8 rows=3 loops=1)
+   Filter: (lower(first_name) ~~ 'иван%'::text)
+   Rows Removed by Filter: 1380
+ Planning Time: 0.188 ms
+ Execution Time: 3.376 ms
+(5 rows)
+
+gopher=# create index CONCURRENTLY guests_fn_ndx on guests(first_name);
+CREATE INDEX
+gopher=# explain analyze select *  from guests where lower(first_name) like 'иван%';
+                                            QUERY PLAN                          
+                  
+--------------------------------------------------------------------------------
+------------------
+ Seq Scan on guests  (cost=0.00..35.75 rows=7 width=51) (actual time=0.276..2.23
+9 rows=3 loops=1)
+   Filter: (lower(first_name) ~~ 'иван%'::text)
+   Rows Removed by Filter: 1380
+ Planning Time: 0.465 ms
+ Execution Time: 2.268 ms
+
+
+gopher=# explain analyze select b.date_start, b.date_end, g.last_name,g.first_name, g.middle_name, r.room_number, r.room_floor from booking b, guests g, rooms r where b.guest_id=g.id and b.room_id=r.id and lower(g.middle_name) like 'иван%';                                                            QUERY PLAN          
+                                                   
+--------------------------------------------------------------------------------
+---------------------------------------------------
+ Nested Loop  (cost=0.28..33.81 rows=1 width=44) (actual time=0.160..0.162 rows=
+0 loops=1)
+   Join Filter: (b.room_id = r.id)
+   ->  Nested Loop  (cost=0.28..32.00 rows=1 width=40) (actual time=0.159..0.160
+ rows=0 loops=1)
+         ->  Seq Scan on booking b  (cost=0.00..1.04 rows=4 width=16) (actual ti
+me=0.024..0.028 rows=7 loops=1)
+         ->  Index Scan using guests_pkey on guests g  (cost=0.28..7.30 rows=1 w
+idth=32) (actual time=0.016..0.016 rows=0 loops=7)
+               Index Cond: (id = b.guest_id)
+               Filter: (lower(middle_name) ~~ 'иван%'::text)
+               Rows Removed by Filter: 1
+   ->  Seq Scan on rooms r  (cost=0.00..1.36 rows=36 width=12) (never executed)
+ Planning Time: 0.484 ms
+ Execution Time: 0.226 ms
+(11 rows)
+
+gopher=# create index CONCURRENTLY guests_mn_ndx on guests(middle_name);
+CREATE INDEX
+gopher=# explain analyze select b.date_start, b.date_end, g.last_name,g.first_name, g.middle_name, r.room_number, r.room_floor from booking b, guests g, rooms r where b.guest_id=g.id and b.room_id=r.id and lower(g.middle_name) like 'иван%';                                                            QUERY PLAN          
+                                                   
+--------------------------------------------------------------------------------
+---------------------------------------------------
+ Nested Loop  (cost=0.28..33.81 rows=1 width=44) (actual time=2.525..2.527 rows=
+0 loops=1)
+   Join Filter: (b.room_id = r.id)
+   ->  Nested Loop  (cost=0.28..32.00 rows=1 width=40) (actual time=2.523..2.524
+ rows=0 loops=1)
+         ->  Seq Scan on booking b  (cost=0.00..1.04 rows=4 width=16) (actual ti
+me=0.077..0.089 rows=7 loops=1)
+         ->  Index Scan using guests_pkey on guests g  (cost=0.28..7.30 rows=1 w
+idth=32) (actual time=0.342..0.342 rows=0 loops=7)
+               Index Cond: (id = b.guest_id)
+               Filter: (lower(middle_name) ~~ 'иван%'::text)
+               Rows Removed by Filter: 1
+   ->  Seq Scan on rooms r  (cost=0.00..1.36 rows=36 width=12) (never executed)
+ Planning Time: 1.561 ms
+ Execution Time: 5.005 ms
+(11 rows)
